@@ -25,7 +25,8 @@ contains
       Integer, intent(in), optional:: m
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > $10^{12}$ for low accuracy; $10^{7}$ for moderate accuracy; $10^{1}$ for extremely high accuracy.
-      Real(kind=kind(b)), intent(in), optional:: factr, pgtol
+      Real(kind=kind(b)), intent(in), optional:: factr
+      Real(kind=kind(b)), intent(in), optional:: pgtol
       ! Non-negative reast square solution of size $n$.
       Real(kind=kind(b)), allocatable:: x(:)
 
