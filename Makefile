@@ -3,8 +3,8 @@ MY_FORTRAN ?= gfortran -ffree-line-length-none -fmax-identifier-length=63 -pipe 
 # MY_FORTRAN ?= gfortran -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=2 -fopenmp
 # MY_FORTRAN ?= -fpp -warn -assume realloc_lhs -no-ftz -mkl -check -trace -O0 -p -g -DDEBUG -debug all
 # MY_FORTRAN ?= ifort -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost
-FC = $(MY_FORTRAN)
-FFLAGS = -Jsrc
+FC := $(MY_FORTRAN)
+FFLAGS := -Jsrc
 
 # Configurations
 .SUFFIXES:
