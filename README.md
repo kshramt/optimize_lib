@@ -1,9 +1,9 @@
 # `optimize_lib`
 
-## Compilation
+## Execution of Tests
 
 ```bash
-gmake
+gmake test
 ```
 
 ## License
