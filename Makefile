@@ -15,6 +15,7 @@ FUNCTION_OS := $(addsuffix .o,$(FUNCTIONS))
 MODULE_OS := $(addsuffix .o,$(MODULES))
 MODULE_MODS := $(addsuffix .mod,$(MODULES))
 TEST_EXES := $(addsuffix .exe,$(TESTS))
+TEST_DONES := $(addsuffix .done,$(TESTS))
 
 # Configurations
 .SUFFIXES:
@@ -29,15 +30,14 @@ export SHELLOPTS := pipefail:errexit:nounset:noclobber
 .PHONY: all test clean
 all:
 
-test: $(TEST_EXES)
+test: $(TEST_DONES)
 
 clean:
-	rm -f $(TEST_EXES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODS)
+	rm -f $(TEST_EXES) $(TEST_DONES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODES)
 
 # Files
 optimize_lib_test.exe:  $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
 	$(FC) -o $@ $^
-	$(@D)/$(@F)
 
 dep/$(LBFGSB): dep/$(LBFGSB).tar.gz
 	cd $(<D)
@@ -49,6 +49,10 @@ dep/$(LBFGSB).tar.gz:
 	wget http://www.ece.northwestern.edu/~nocedal/Software/$(@F)
 
 # Rules
+%.done: %.exe
+	$(<D)/$(<F)
+	touch $@
+
 %.o %.mod: %.F90
 	$(FC) -o $@ -c $<
 
