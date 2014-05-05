@@ -26,8 +26,8 @@ export SHELL := /bin/bash
 export SHELLOPTS := pipefail:errexit:nounset:noclobber
 
 # Tasks
-.PHONY: default test clean
-default:
+.PHONY: all test clean
+all:
 
 test: $(TEST_EXES)
 
