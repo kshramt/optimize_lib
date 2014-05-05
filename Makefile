@@ -7,6 +7,15 @@ FC := $(MY_FORTRAN)
 
 LBFGSB := Lbfgsb.3.0
 
+FUNCTIONS := lbfgsb linpack blas timer
+MODULES := optimize_lib
+TESTS := optimize_lib_test
+
+FUNCTION_OS := $(addsuffix .o,$(FUNCTIONS))
+MODULE_OS := $(addsuffix .o,$(MODULES))
+MODULE_MODS := $(addsuffix .mod,$(MODULES))
+TEST_EXES := $(addsuffix .exe,$(TESTS))
+
 # Configurations
 .SUFFIXES:
 .DELETE_ON_ERROR:
@@ -17,10 +26,19 @@ export SHELL := /bin/bash
 export SHELLOPTS := pipefail:errexit:nounset:noclobber
 
 # Tasks
-.PHONY: default
+.PHONY: default test clean
 default:
 
+test: $(TEST_EXES)
+
+clean:
+	rm -f $(TEST_EXES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODS)
+
 # Files
+optimize_lib_test.exe:  $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
+	$(FC) -o $@ $^
+	$(@D)/$(@F)
+
 dep/$(LBFGSB): dep/$(LBFGSB).tar.gz
 	cd $(<D)
 	tar -mxf $(<F)
@@ -31,7 +49,7 @@ dep/$(LBFGSB).tar.gz:
 	wget http://www.ece.northwestern.edu/~nocedal/Software/$(@F)
 
 # Rules
-%.o: %.F90
+%.o %.mod: %.F90
 	$(FC) -o $@ -c $<
 
 %.o: %.f
