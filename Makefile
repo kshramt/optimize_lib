@@ -11,11 +11,11 @@ FUNCTIONS := lbfgsb linpack blas timer
 MODULES := optimize_lib
 TESTS := optimize_lib_test
 
-FUNCTION_OS := $(addsuffix .o,$(FUNCTIONS))
-MODULE_OS := $(addsuffix .o,$(MODULES))
-MODULE_MODS := $(addsuffix .mod,$(MODULES))
-TEST_EXES := $(addsuffix .exe,$(TESTS))
-TEST_DONES := $(addsuffix .done,$(TESTS))
+FUNCTION_OS := $(FUNCTIONS:%=%.o)
+MODULE_OS := $(MODULES:%=%.o)
+MODULE_MODS := $(MODULES:%=%.mod)
+TEST_EXES := $(TESTS:%=%.exe)
+TEST_DONES := $(TESTS:%=%.done)
 
 # Configurations
 .SUFFIXES:
