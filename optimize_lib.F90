@@ -65,12 +65,12 @@ contains
       if(present(factr))then
          factr_ = factr
       else
-         factr_ = 1.0e+7
+         factr_ = 10.0_REAL64**7
       end if
       if(present(pgtol))then
          pgtol_ = pgtol
       else
-         pgtol_ = 1.0e-5
+         pgtol_ = 10.0_REAL64**(-5)
       end if
       allocate(g(1:n))
       allocate(wa(1:((2*m_ + 5)*n + 12*m_**2 + 12*m_)))
