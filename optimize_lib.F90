@@ -83,7 +83,7 @@ contains
          if(task(1:2) == 'FG')then
             tAAx(:) = matmul(tAA, x)
             f = -2*dot_product(x, tAb) + dot_product(x, tAAx)
-            g(:) = 2*(tAb - tAAx)
+            g(:) = 2*(-tAb + tAAx)
          end if
       end do
    end function nnls_lbfgsb
