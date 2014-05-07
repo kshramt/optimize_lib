@@ -32,7 +32,7 @@ contains
 
       ! Working variables.
 
-      Real(kind=kind(tAb)), allocatable:: tAAx(:)
+      Real(kind=kind(tAb)), allocatable:: tAAx(:), minus_two_tAb(:)
 
       ! See descriptions in `setulb` for the details.
 
@@ -51,6 +51,8 @@ contains
       allocate(x(1:n))
       x = 1 ! todo: allow user to specify the initial value for x
       allocate(tAAx(1:n))
+      allocate(minus_two_tAb(1:n))
+      minus_two_tAb(:) = -2*tAb
       allocate(l(1:n))
       l = 0 ! lower bound is zero
       allocate(u(1:n)) ! upper bound is not used
@@ -82,8 +84,8 @@ contains
          call setulb(n, m_, x, l, u, nbd, f, g, factr_, pgtol_, wa, iwa, task, iprint, csave, lsave, isave, dsave)
          if(task(1:2) == 'FG')then
             tAAx(:) = matmul(tAA, x)
-            f = -2*dot_product(x, tAb) + dot_product(x, tAAx)
-            g(:) = 2*(-tAb + tAAx)
+            f = dot_product(x, minus_two_tAb + tAAx)
+            g(:) = minus_two_tAb + 2*tAAx
          end if
       end do
    end function nnls_lbfgsb
