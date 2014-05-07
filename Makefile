@@ -13,9 +13,9 @@ endif
 
 LBFGSB := Lbfgsb.3.0
 
-FUNCTIONS := lbfgsb timer
+FUNCTIONS := lbfgsb timer linpack
 ifneq ($(FC),ifort)
-   FUNCTIONS += linpack blas
+   FUNCTIONS += blas
 endif
 MODULES := optimize_lib
 TESTS := optimize_lib_test
