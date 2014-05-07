@@ -4,7 +4,7 @@ FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall
 # FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=2 -fopenmp
 
 # FC := ifort
-# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check -trace -O0 -p -g -DDEBUG -debug all
+# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all
 # FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost
 
 ifeq ($(FC),ifort)
