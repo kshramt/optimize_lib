@@ -1,13 +1,22 @@
 # Constants
-MY_FORTRAN ?= gfortran -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all
-# MY_FORTRAN ?= gfortran -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=2 -fopenmp
-# MY_FORTRAN ?= -fpp -warn -assume realloc_lhs -no-ftz -mkl -check -trace -O0 -p -g -DDEBUG -debug all
-# MY_FORTRAN ?= ifort -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost
-FC := $(MY_FORTRAN)
+FC := gfortran
+FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all
+# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=2 -fopenmp
+
+# FC := ifort
+# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check -trace -O0 -p -g -DDEBUG -debug all
+# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost
+
+ifeq ($(FC),ifort)
+   FFLAGS += -mkl
+endif
 
 LBFGSB := Lbfgsb.3.0
 
-FUNCTIONS := lbfgsb linpack blas timer
+FUNCTIONS := lbfgsb timer
+ifneq ($(FC),ifort)
+   FUNCTIONS += linpack blas
+endif
 MODULES := optimize_lib
 TESTS := optimize_lib_test
 
@@ -36,8 +45,8 @@ clean:
 	rm -f $(TEST_EXES) $(TEST_DONES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODES)
 
 # Files
-optimize_lib_test.exe:  $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
-	$(FC) -o $@ $^
+optimize_lib_test.exe: $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
+	$(FC) $(FFLAGS) -o $@ $^
 
 dep/$(LBFGSB): dep/$(LBFGSB).tar.gz
 	cd $(<D)
@@ -54,10 +63,10 @@ dep/$(LBFGSB).tar.gz:
 	touch $@
 
 %.o %.mod: %.F90
-	$(FC) -o $@ -c $<
+	$(FC) $(FFLAGS) -o $@ -c $<
 
 %.o: %.f
-	$(FC) -o $@ -c $<
+	$(FC) $(FFLAGS) -o $@ -c $<
 
 %.f: dep/$(LBFGSB)/%.f
 	cp -f $< $@
