@@ -24,7 +24,7 @@ contains
       ! > small values of $m$ (say $3 \le m \le 20$) are recommended,
       Integer, intent(in), optional:: m
       ! According to `code.pdf` in the `Lbfgsb` distribution,
-      ! > $10^{12}$ for low accuracy; $10^{7}$ for moderate accuracy; $10^{1}$ for extremely high accuracy.
+      ! > $10^{12}$ for low accuracy; $10^{7}$ for moderate accuracy; $10^{0}$ for extremely high accuracy.
       Real(kind=kind(tAb)), intent(in), optional:: factr
       Real(kind=kind(tAb)), intent(in), optional:: pgtol
       ! Non-negative reast square solution of size $n$.
