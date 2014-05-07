@@ -17,46 +17,40 @@ contains
    ! Solve non-negative least square solution for $\bm{b} = \bm{A}\bm{x}$, where $\bm{A}$ is a $q \times n$ matrix and $\bm{b}$ is a data vector of size $q$.
    ! # References
    ! - Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A Limited Memory Algorithm for Bound Constrained Optimization. SIAM Journal on Scientific Computing, 16(5), 1190–1208. doi:10.1137/0916069
-   function nnls_lbfgsb(A, b, m, factr, pgtol) result(x)
-      DoublePrecision, intent(in):: A(:, :), b(:)
+   function nnls_lbfgsb(tAA, tAb, m, factr, pgtol) result(x)
+      DoublePrecision, intent(in):: tAA(:, :), tAb(:)
       ! Size of limited memory approximation of a hessian matrix $\bm{B}$.
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > small values of $m$ (say $3 \le m \le 20$) are recommended,
       Integer, intent(in), optional:: m
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > $10^{12}$ for low accuracy; $10^{7}$ for moderate accuracy; $10^{1}$ for extremely high accuracy.
-      Real(kind=kind(b)), intent(in), optional:: factr
-      Real(kind=kind(b)), intent(in), optional:: pgtol
+      Real(kind=kind(tAb)), intent(in), optional:: factr
+      Real(kind=kind(tAb)), intent(in), optional:: pgtol
       ! Non-negative reast square solution of size $n$.
-      Real(kind=kind(b)), allocatable:: x(:)
+      Real(kind=kind(tAb)), allocatable:: x(:)
 
       ! Working variables.
 
-      Real(kind=kind(b)), allocatable:: b_minus_Ax(:)
+      Real(kind=kind(tAb)), allocatable:: tAAx(:)
 
       ! See descriptions in `setulb` for the details.
 
       ! Size of the kernel matrix $\bm{A}$
-      Integer(kind=kind(m)):: q, n, m_, iprint
-      Real(kind=kind(b)), allocatable:: l(:), u(:), g(:), wa(:)
-      Real(kind=kind(b)):: f
+      Integer(kind=kind(m)):: n, m_, iprint
+      Real(kind=kind(tAb)), allocatable:: l(:), u(:), g(:), wa(:)
+      Real(kind=kind(tAb)):: f
       Integer(kind=kind(m)), allocatable:: nbd(:), iwa(:)
       Real(kind=kind(factr)):: factr_, pgtol_
       Character(len=60):: task, csave
       Logical:: lsave(1:4)
       Integer(kind=kind(m)):: isave(1:44)
-      Real(kind=kind(b)):: dsave(1:29)
+      Real(kind=kind(tAb)):: dsave(1:29)
 
-      q = size(A, 1, kind=kind(q))
-      n = size(A, 2, kind=kind(n))
-      if(q < n)then
-         write(ERROR_UNIT, *) 'ERROR: a number of data is less than a number of model parameter: ', q, n
-         error stop
-      end if
-
+      n = size(tAA, 1, kind=kind(n))
       allocate(x(1:n))
       x = 1 ! todo: allow user to specify the initial value for x
-      allocate(b_minus_Ax(1:n))
+      allocate(tAAx(1:n))
       allocate(l(1:n))
       l = 0 ! lower bound is zero
       allocate(u(1:n)) ! upper bound is not used
@@ -87,9 +81,9 @@ contains
       do while(task(1:2) == 'FG' .or. task == 'NEW_X' .or. task == 'START')
          call setulb(n, m_, x, l, u, nbd, f, g, factr_, pgtol_, wa, iwa, task, iprint, csave, lsave, isave, dsave)
          if(task(1:2) == 'FG')then
-            b_minus_Ax(:) = b - matmul(A, x)
-            f = dot_product(b_minus_Ax, b_minus_Ax)
-            g(:) = 2*matmul(b_minus_Ax, A)
+            tAAx(:) = matmul(tAA, x)
+            f = -2*dot_product(x, tAb) + dot_product(x, tAAx)
+            g(:) = 2*(tAb - tAAx)
          end if
       end do
    end function nnls_lbfgsb
