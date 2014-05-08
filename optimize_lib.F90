@@ -36,7 +36,6 @@ contains
 
       ! See descriptions in `setulb` for the details.
 
-      ! Size of the kernel matrix $\bm{A}$
       Integer(kind=kind(m)):: n, m_, iprint
       Real(kind=kind(tAb)), allocatable:: l(:), u(:), g(:), wa(:)
       Real(kind=kind(tAb)):: f
