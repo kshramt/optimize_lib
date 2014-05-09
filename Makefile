@@ -63,7 +63,7 @@ dep/$(LBFGSB).tar.gz:
 	touch $@
 
 %.o %.mod: %.F90
-	$(FC) $(FFLAGS) -o $@ -c $<
+	$(FC) $(FFLAGS) -o $(@:%.mod=%.o) -c $<
 
 %.o: %.f
 	$(FC) $(FFLAGS) -o $@ -c $<
