@@ -9,23 +9,23 @@ export SHELLOPTS := pipefail:errexit:nounset:noclobber
 
 # Constants
 FC := gfortran
-FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all
-# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp
-
 # FC := ifort
-# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all
-# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost
 
 ifeq ($(FC),ifort)
-   FFLAGS += -mkl
+   LIBS := -mkl
+else
+   LIBS := -lblas -llapack
 endif
+
+FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all $(LIBS)
+# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp $(LIBS)
+
+# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all $(LIBS)
+# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost $(LIBS)
 
 LBFGSB := Lbfgsb.3.0
 
-FUNCTIONS := lbfgsb timer linpack
-ifneq ($(FC),ifort)
-   FUNCTIONS += blas
-endif
+FUNCTIONS := lbfgsb timer
 MODULES := optimize_lib
 TESTS := optimize_lib_test
 
