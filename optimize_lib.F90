@@ -55,7 +55,6 @@ contains
       ! See descriptions in `setulb` for the details.
 
       Integer(kind=kind(m)):: n, m_, iprint
-      Integer:: n_INT32
       Real(kind=REAL_KIND), allocatable:: l(:), u(:), g(:), wa(:)
       Real(kind=REAL_KIND):: f
       Integer(kind=kind(m)), allocatable:: nbd(:), iwa(:)
@@ -66,7 +65,6 @@ contains
       Real(kind=REAL_KIND):: dsave(1:29)
 
       n = size(tAA, 1, kind=kind(n))
-      n_INT32 = int(n, kind=kind(n_INT32))
       allocate(x(1:n))
       x = 1 ! todo: allow user to specify the initial value for x
       allocate(tAAx(1:n))
@@ -103,9 +101,9 @@ contains
          call setulb(n, m_, x, l, u, nbd, f, g, factr_, pgtol_, wa, iwa, task, iprint, csave, lsave, isave, dsave)
          if(task(1:2) == 'FG')then
             ! tAAx(:) = matmul(tAA, x)
-            call dgemv('N', n_INT32, n_INT32, ONE, tAA, n_INT32, x, 1, ZERO, tAAx, 1)
+            call dgemv('N', n, n, ONE, tAA, n, x, 1, ZERO, tAAx, 1)
             ! f = dot_product(x, minus_two_tAb + tAAx)
-            f = ddot(n_INT32, x, 1, minus_two_tAb + tAAx, 1)
+            f = ddot(n, x, 1, minus_two_tAb + tAAx, 1)
             g(:) = minus_two_tAb + 2*tAAx
          end if
       end do
