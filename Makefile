@@ -1,3 +1,12 @@
+# Configurations
+.SUFFIXES:
+.DELETE_ON_ERROR:
+.ONESHELL:
+.SECONDARY:
+.PRECIOUS:
+export SHELL := /bin/bash
+export SHELLOPTS := pipefail:errexit:nounset:noclobber
+
 # Constants
 FC := gfortran
 FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all
@@ -25,15 +34,6 @@ MODULE_OS := $(MODULES:%=%.o)
 MODULE_MODS := $(MODULES:%=%.mod)
 TEST_EXES := $(TESTS:%=%.exe)
 TEST_DONES := $(TESTS:%=%.done)
-
-# Configurations
-.SUFFIXES:
-.DELETE_ON_ERROR:
-.ONESHELL:
-.SECONDARY:
-.PRECIOUS:
-export SHELL := /bin/bash
-export SHELLOPTS := pipefail:errexit:nounset:noclobber
 
 # Tasks
 .PHONY: all test clean
