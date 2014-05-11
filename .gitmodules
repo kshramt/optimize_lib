@@ -1,0 +1,3 @@
+[submodule "dep/Lbfgsb"]
+	path = dep/Lbfgsb
+	url = https://github.com/kshramt/Lbfgsb.git

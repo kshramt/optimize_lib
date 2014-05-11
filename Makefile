@@ -23,13 +23,14 @@ FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall
 # FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all $(LIBS)
 # FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost $(LIBS)
 
-LBFGSB := Lbfgsb.3.0
+LBFGSB := Lbfgsb
 
-FUNCTIONS := lbfgsb timer
+LBFGSBS := lbfgsb timer
 MODULES := optimize_lib
 TESTS := optimize_lib_test
 
-FUNCTION_OS := $(FUNCTIONS:%=%.o)
+LBFGSB_FS := $(LBFGSBS:%=%.f)
+LBFGSB_OS := $(LBFGSBS:%=%.o)
 MODULE_OS := $(MODULES:%=%.o)
 MODULE_MODS := $(MODULES:%=%.mod)
 TEST_EXES := $(TESTS:%=%.exe)
@@ -42,20 +43,17 @@ all:
 test: $(TEST_DONES)
 
 clean:
-	rm -f $(TEST_EXES) $(TEST_DONES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODS)
+	rm -f $(TEST_EXES) $(TEST_DONES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
 
 # Files
-optimize_lib_test.exe: $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
+optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
 	$(FC) $(FFLAGS) -o $@ $^
 
-dep/$(LBFGSB): dep/$(LBFGSB).tar.gz
-	cd $(<D)
-	tar -mxf $(<F)
-
-dep/$(LBFGSB).tar.gz:
-	mkdir -p $(@D)
-	cd $(@D)
-	wget http://www.ece.northwestern.edu/~nocedal/Software/$(@F)
+define CP_LBFGSB_TEMPLATE =
+$(1): dep/$(LBFGSB)/$(1)
+	cp -f $$< $$@
+endef
+$(foreach f,$(LBFGSB_FS),$(eval $(call CP_LBFGSB_TEMPLATE,$(f))))
 
 # Rules
 %.done: %.exe
@@ -68,8 +66,8 @@ dep/$(LBFGSB).tar.gz:
 %.o: %.f
 	$(FC) $(FFLAGS) -o $@ -c $<
 
-%.f: dep/$(LBFGSB)/%.f
-	cp -f $< $@
+dep/$(LBFGSB)/%.f: .git/modules/dep/$(LBFGSB)/HEAD
+	git submodule update --init --recursive
 
-dep/$(LBFGSB)/%.f: | dep/$(LBFGSB)
-	@
+.git/modules/dep/%/HEAD:
+	git submodule init
