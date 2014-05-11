@@ -17,8 +17,8 @@ else
    LIBS := -lblas -llapack
 endif
 
-FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all $(LIBS)
-# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp $(LIBS)
+FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all $(LIBS)
+# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp $(LIBS)
 
 # FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all $(LIBS)
 # FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost $(LIBS)
