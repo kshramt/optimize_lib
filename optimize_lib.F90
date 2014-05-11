@@ -1,5 +1,4 @@
 module optimize_lib
-   use, intrinsic:: iso_fortran_env, only: REAL64
    use, intrinsic:: iso_fortran_env, only: INPUT_UNIT, OUTPUT_UNIT, ERROR_UNIT
 
    implicit none
@@ -34,36 +33,37 @@ contains
       end interface ddot
 
       DoublePrecision, intent(in):: tAA(:, :), tAb(:)
+      Integer, parameter:: REAL_KIND = kind(tAb)
       ! Size of limited memory approximation of a hessian matrix $\bm{B}$.
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > small values of $m$ (say $3 \le m \le 20$) are recommended,
       Integer, intent(in), optional:: m
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > $10^{12}$ for low accuracy; $10^{7}$ for moderate accuracy; $10^{0}$ for extremely high accuracy.
-      Real(kind=kind(tAb)), intent(in), optional:: factr
-      Real(kind=kind(tAb)), intent(in), optional:: pgtol
+      Real(kind=REAL_KIND), intent(in), optional:: factr
+      Real(kind=REAL_KIND), intent(in), optional:: pgtol
       ! Non-negative reast square solution of size $n$.
-      Real(kind=kind(tAb)), allocatable:: x(:)
+      Real(kind=REAL_KIND), allocatable:: x(:)
 
       ! Parameters
-      Real(kind=kind(tAb)), parameter:: ONE = 1, ZERO = 0
+      Real(kind=REAL_KIND), parameter:: ONE = 1, ZERO = 0
 
       ! Working variables.
 
-      Real(kind=kind(tAb)), allocatable:: tAAx(:), minus_two_tAb(:)
+      Real(kind=REAL_KIND), allocatable:: tAAx(:), minus_two_tAb(:)
 
       ! See descriptions in `setulb` for the details.
 
       Integer(kind=kind(m)):: n, m_, iprint
       Integer:: n_INT32
-      Real(kind=kind(tAb)), allocatable:: l(:), u(:), g(:), wa(:)
-      Real(kind=kind(tAb)):: f
+      Real(kind=REAL_KIND), allocatable:: l(:), u(:), g(:), wa(:)
+      Real(kind=REAL_KIND):: f
       Integer(kind=kind(m)), allocatable:: nbd(:), iwa(:)
       Real(kind=kind(factr)):: factr_, pgtol_
       Character(len=60):: task, csave
       Logical:: lsave(1:4)
       Integer(kind=kind(m)):: isave(1:44)
-      Real(kind=kind(tAb)):: dsave(1:29)
+      Real(kind=REAL_KIND):: dsave(1:29)
 
       n = size(tAA, 1, kind=kind(n))
       n_INT32 = int(n, kind=kind(n_INT32))
@@ -86,12 +86,12 @@ contains
       if(present(factr))then
          factr_ = factr
       else
-         factr_ = 10.0_REAL64**7
+         factr_ = 10.0_REAL_KIND**7
       end if
       if(present(pgtol))then
          pgtol_ = pgtol
       else
-         pgtol_ = 10.0_REAL64**(-5)
+         pgtol_ = 10.0_REAL_KIND**(-5)
       end if
       allocate(g(1:n))
       allocate(wa(1:((2*m_ + 5)*n + 12*m_**2 + 12*m_)))
