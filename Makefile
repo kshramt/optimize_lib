@@ -42,7 +42,7 @@ all:
 test: $(TEST_DONES)
 
 clean:
-	rm -f $(TEST_EXES) $(TEST_DONES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODES)
+	rm -f $(TEST_EXES) $(TEST_DONES) $(FUNCTION_OS) $(MODULE_OS) $(MODULE_MODS)
 
 # Files
 optimize_lib_test.exe: $(FUNCTION_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
