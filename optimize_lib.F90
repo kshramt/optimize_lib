@@ -10,6 +10,9 @@ module optimize_lib
       module procedure nnls_lbfgsb
    end interface nnls_lbfgsb
 
+   DoublePrecision:: double_precision_var
+   Integer, parameter, public:: REAL_KIND = kind(double_precision_var)
+
 contains
 
    ! Solve non-negative least square solution for $\bm{b} = \bm{A}\bm{x}$, where $\bm{A}$ is a $q \times n$ matrix and $\bm{b}$ is a data vector of size $q$.
@@ -32,8 +35,7 @@ contains
          END FUNCTION DDOT
       end interface ddot
 
-      DoublePrecision, intent(in):: tAA(:, :), tAb(:)
-      Integer, parameter:: REAL_KIND = kind(tAb)
+      Real(kind=REAL_KIND), intent(in):: tAA(:, :), tAb(:)
       ! Size of limited memory approximation of a hessian matrix $\bm{B}$.
       ! According to `code.pdf` in the `Lbfgsb` distribution,
       ! > small values of $m$ (say $3 \le m \le 20$) are recommended,

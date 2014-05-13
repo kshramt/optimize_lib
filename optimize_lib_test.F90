@@ -1,11 +1,11 @@
 program main
-   use, intrinsic:: iso_fortran_env, only: REAL64, INT64
+   use, intrinsic:: iso_fortran_env, only: INT64
    use, intrinsic:: iso_fortran_env, only: INPUT_UNIT, OUTPUT_UNIT, ERROR_UNIT
-   use, non_intrinsic:: optimize_lib, only: nnls_lbfgsb
+   use, non_intrinsic:: optimize_lib, only: nnls_lbfgsb, REAL_KIND
 
    implicit none
 
-   Real(kind=REAL64), allocatable:: A(:, :), x_orig(:), x_optim(:), b(:), tA(:, :)
+   Real(kind=REAL_KIND), allocatable:: A(:, :), x_orig(:), x_optim(:), b(:), tA(:, :)
    Integer(kind=INT64):: n_row, n_col, i
 
    read(INPUT_UNIT, *) n_row, n_col
