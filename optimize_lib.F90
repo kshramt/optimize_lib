@@ -52,7 +52,7 @@ contains
 
       ! Working variables.
 
-      Real(kind=REAL_KIND), allocatable:: tAAx(:), minus_two_tAb(:)
+      Real(kind=REAL_KIND), allocatable:: tAAx(:), minus_two_tAb(:), tAAx_minus_two_tAb(:)
 
       ! See descriptions in `setulb` for the details.
 
@@ -72,6 +72,7 @@ contains
       allocate(tAAx(1:n))
       allocate(minus_two_tAb(1:n))
       minus_two_tAb(:) = -2*tAb
+      allocate(tAAx_minus_two_tAb(1:n))
       allocate(l(1:n))
       l = 0 ! lower bound is zero
       allocate(u(1:n)) ! upper bound is not used
@@ -105,7 +106,8 @@ contains
             ! tAAx(:) = matmul(tAA, x)
             call dgemv('N', n, n, ONE, tAA, n, x, 1, ZERO, tAAx, 1)
             ! f = dot_product(x, minus_two_tAb + tAAx)
-            f = ddot(n, x, 1, minus_two_tAb + tAAx, 1)
+            tAAx_minus_two_tAb(:) = minus_two_tAb + tAAx
+            f = ddot(n, x, 1, tAAx_minus_two_tAb, 1)
             g(:) = minus_two_tAb + 2*tAAx
          end if
       end do
