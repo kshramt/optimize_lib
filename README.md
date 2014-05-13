@@ -6,5 +6,9 @@
 gmake test
 ```
 
+## Segmentation Fault?
+
+Try `ulimit -s unlimited`.
+
 ## License
 GNU General Public License Version 3
