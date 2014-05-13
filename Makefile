@@ -96,12 +96,13 @@ $(foreach f,$(BIN_SCRIPTS),$(eval $(call CP_BIN_TEMPLATE,$(f))))
 	$(FC) $(FFLAGS) -o $@ -c $<
 
 define DEPS_RULE_TEMPLATE =
-dep/$(1).timestamp: .git/modules/dep/$(1)/HEAD
-	git submodule update --init --recursive
-	touch $$@
 dep/$(1)/%: | dep/$(1).timestamp ;
 endef
 $(foreach f,$(DEPS),$(eval $(call DEPS_RULE_TEMPLATE,$(f))))
+
+dep/%.timestamp: .git/modules/dep/%/HEAD
+	git submodule update --init --recursive
+	touch $@
 
 .git/modules/dep/%/HEAD:
 	git submodule init
