@@ -6,54 +6,19 @@ program main
    implicit none
 
    Real(kind=REAL64), allocatable:: A(:, :), x_orig(:), x_optim(:), b(:), tA(:, :)
-   Integer(kind=INT64):: n, i
+   Integer(kind=INT64):: n_row, n_col, i
 
-   n = 5
-   allocate(A(2*n, n))
-   call random_number(A)
+   read(INPUT_UNIT, *) n_row, n_col
+   allocate(A(n_row, n_col))
+   read(INPUT_UNIT, *) A
    allocate(tA(size(A, 2), size(A, 1)))
    tA(:, :) = transpose(A)
    allocate(x_orig(size(A, 2)))
-   x_orig(:) = zero_if_even([(i, i=1, n)])
+   x_orig(:) = zero_if_even([(i, i=1, n_col)])
    allocate(b(size(A, 1)))
    b(:) = matmul(A, x_orig)
-   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4, factr=1.0d0, pgtol=epsilon(1.0d0))
-   write(OUTPUT_UNIT, *)
+   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4, factr=1.0d0, pgtol=sqrt(epsilon(1.0d0)))
    write(OUTPUT_UNIT, *) x_orig
-   write(OUTPUT_UNIT, *) x_optim
-
-   n = 20
-   deallocate(A, tA, x_orig, b)
-   allocate(A(2*n, n))
-   call random_number(A)
-   allocate(tA(size(A, 2), size(A, 1)))
-   tA(:, :) = transpose(A)
-   allocate(x_orig(size(A, 2)))
-   x_orig(:) = zero_if_even([(i, i=1, n)])
-   allocate(b(size(A, 1)))
-   b(:) = matmul(A, x_orig)
-   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4)
-   write(OUTPUT_UNIT, *)
-   write(OUTPUT_UNIT, *) x_orig
-   write(OUTPUT_UNIT, *) x_optim
-   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4, factr=1.0d0)
-   write(OUTPUT_UNIT, *) x_optim
-
-   n = 20
-   deallocate(A, tA, x_orig, b)
-   allocate(A(2*n, n))
-   call random_number(A)
-   allocate(tA(size(A, 2), size(A, 1)))
-   tA(:, :) = transpose(A)
-   allocate(x_orig(size(A, 2)))
-   x_orig(:) = zero_if_even([(i - n/2, i=1, n)])
-   allocate(b(size(A, 1)))
-   b(:) = matmul(A, x_orig)
-   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4)
-   write(OUTPUT_UNIT, *)
-   write(OUTPUT_UNIT, *) x_orig
-   write(OUTPUT_UNIT, *) x_optim
-   x_optim = nnls_lbfgsb(matmul(tA, A), matmul(tA, b), m=4, factr=1.0d0)
    write(OUTPUT_UNIT, *) x_optim
 
    stop

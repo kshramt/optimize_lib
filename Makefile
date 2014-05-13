@@ -1,3 +1,5 @@
+ROOT_DIR := $(abspath .)
+
 # Configurations
 .SUFFIXES:
 .DELETE_ON_ERROR:
@@ -6,6 +8,7 @@
 .PRECIOUS:
 export SHELL := /bin/bash
 export SHELLOPTS := pipefail:errexit:nounset:noclobber
+export PATH := $(ROOT_DIR)/script:$(PATH)
 
 # Constants
 FC := gfortran
@@ -25,6 +28,16 @@ FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -fbound
 
 LBFGSB := Lbfgsb
 
+DEPS := Lbfgsb bin
+
+BIN_SCRIPTS := to_normal.sh rand.sh dawk.sh
+
+SEED ?= 1
+N_ROW ?= 2000
+N_COL ?= 1000
+TEST_PARAMS := $(SEED)_$(N_ROW)_$(N_COL)
+RAND_NORMAL_DAT := test/rand_normal_$(TEST_PARAMS).dat
+
 LBFGSBS := lbfgsb timer
 MODULES := optimize_lib
 TESTS := optimize_lib_test
@@ -34,20 +47,33 @@ LBFGSB_OS := $(LBFGSBS:%=%.o)
 MODULE_OS := $(MODULES:%=%.o)
 MODULE_MODS := $(MODULES:%=%.mod)
 TEST_EXES := $(TESTS:%=%.exe)
-TEST_DONES := $(TESTS:%=%.done)
+TEST_DONES := $(TESTS:%=test/%_$(TEST_PARAMS).done)
 
 # Tasks
-.PHONY: all test clean
-all:
+.PHONY: all test clean deps
+all: deps
 
-test: $(TEST_DONES)
+deps: $(DEPS:%=dep/%.timestamp)
+
+test: deps $(TEST_DONES)
 
 clean:
-	rm -f $(TEST_EXES) $(TEST_DONES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
+	rm -f $(TEST_EXES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
 
 # Files
 optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
 	$(FC) $(FFLAGS) -o $@ $^
+
+test/optimize_lib_test_$(TEST_PARAMS).done: optimize_lib_test.exe $(RAND_NORMAL_DAT)
+	{
+	   echo $(N_ROW) $(N_COL)
+	   cat $(RAND_NORMAL_DAT)
+	} | $(<D)/$(<F) >| $@
+
+$(RAND_NORMAL_DAT): script/rand.sh script/to_normal.sh script/dawk.sh
+	mkdir -p $(@D)
+	set +o pipefail # `head` -> `SIGPIPE`
+	rand.sh $(SEED) | to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
 
 define CP_LBFGSB_TEMPLATE =
 $(1): dep/$(LBFGSB)/$(1)
@@ -55,19 +81,27 @@ $(1): dep/$(LBFGSB)/$(1)
 endef
 $(foreach f,$(LBFGSB_FS),$(eval $(call CP_LBFGSB_TEMPLATE,$(f))))
 
-# Rules
-%.done: %.exe
-	$(<D)/$(<F)
-	touch $@
+define CP_BIN_TEMPLATE =
+script/$(1): dep/bin/$(1)
+	mkdir -p $$(@D)
+	cp -f $$< $$@
+endef
+$(foreach f,$(BIN_SCRIPTS),$(eval $(call CP_BIN_TEMPLATE,$(f))))
 
+# Rules
 %.o %.mod: %.F90
 	$(FC) $(FFLAGS) -o $(@:%.mod=%.o) -c $<
 
 %.o: %.f
 	$(FC) $(FFLAGS) -o $@ -c $<
 
-dep/$(LBFGSB)/%.f: .git/modules/dep/$(LBFGSB)/HEAD
+define DEPS_RULE_TEMPLATE =
+dep/$(1).timestamp: .git/modules/dep/$(1)/HEAD
 	git submodule update --init --recursive
+	touch $$@
+dep/$(1)/%: | dep/$(1).timestamp ;
+endef
+$(foreach f,$(DEPS),$(eval $(call DEPS_RULE_TEMPLATE,$(f))))
 
 .git/modules/dep/%/HEAD:
 	git submodule init
