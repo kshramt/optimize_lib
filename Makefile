@@ -14,16 +14,14 @@ FC := gfortran
 # FC := ifort
 
 ifeq ($(FC),ifort)
-   LIBS := -mkl
+   FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -check nouninit -module src -mkl
+   FFLAGS += -trace -O0 -p -g -DDEBUG -debug all
+   # FFLAGS += -lpthread -openmp -ip -ipo -parallel -O3 -xHost
 else
-   LIBS := -lblas -llapack
+   FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -Wrealloc-lhs-all -Jsrc -lblas -llapack
+   FFLAGS += -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG
+   # FFLAGS += -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp
 endif
-
-FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG -Wrealloc-lhs-all $(LIBS)
-# FFLAGS := -ffree-line-length-none -fmax-identifier-length=63 -pipe -Wall -O3 -march=native -flto -fwhole-program -ftree-parallelize-loops=$(shell nproc) -fopenmp $(LIBS)
-
-# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -check nouninit -trace -O0 -p -g -DDEBUG -debug all $(LIBS)
-# FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -mkl -lpthread -openmp -ip -ipo -parallel -O3 -xHost $(LIBS)
 
 LBFGSB := Lbfgsb
 
@@ -41,11 +39,11 @@ LBFGSBS := lbfgsb timer
 MODULES := optimize_lib
 TESTS := optimize_lib_test
 
-LBFGSB_FS := $(LBFGSBS:%=%.f)
-LBFGSB_OS := $(LBFGSBS:%=%.o)
-MODULE_OS := $(MODULES:%=%.o)
-MODULE_MODS := $(MODULES:%=%.mod)
-TEST_EXES := $(TESTS:%=%.exe)
+LBFGSB_FS := $(LBFGSBS:%=src/%.f)
+LBFGSB_OS := $(LBFGSBS:%=src/%.o)
+MODULE_OS := $(MODULES:%=src/%.o)
+MODULE_MODS := $(MODULES:%=src/%.mod)
+TEST_EXES := $(TESTS:%=test/%.exe)
 TEST_DONES := $(TESTS:%=test/%_$(TEST_PARAMS).done)
 
 # Tasks
@@ -60,10 +58,11 @@ clean:
 	rm -f $(TEST_EXES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
 
 # Files
-optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) optimize_lib_test.F90 | $(MODULE_MODS)
+test/optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) src/optimize_lib_test.F90 | $(MODULE_MODS)
+	mkdir -p $(@D)
 	$(FC) $(FFLAGS) -o $@ $^
 
-test/optimize_lib_test_$(TEST_PARAMS).done: optimize_lib_test.exe $(RAND_NORMAL_DAT)
+test/optimize_lib_test_$(TEST_PARAMS).done: test/optimize_lib_test.exe $(RAND_NORMAL_DAT)
 	{
 	   echo $(N_ROW) $(N_COL)
 	   cat $(RAND_NORMAL_DAT)
@@ -74,7 +73,8 @@ $(RAND_NORMAL_DAT): $(addprefix script/,rand.sh to_normal.sh dawk.sh)
 	set +o pipefail # `head` -> `SIGPIPE`
 	script/rand.sh $(SEED) | script/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
 
-$(LBFGSB_FS): %: dep/$(LBFGSB)/%
+$(LBFGSB_FS): src/%: dep/$(LBFGSB)/%
+	mkdir -p $(@D)
 	cp -f $< $@
 
 $(SCRIPTS): script/%: dep/bin/%
@@ -83,9 +83,11 @@ $(SCRIPTS): script/%: dep/bin/%
 
 # Rules
 %.o %.mod: %.F90
+	mkdir -p $(@D)
 	$(FC) $(FFLAGS) -o $(@:%.mod=%.o) -c $<
 
 %.o: %.f
+	mkdir -p $(@D)
 	$(FC) $(FFLAGS) -o $@ -c $<
 
 define DEPS_RULE_TEMPLATE =
