@@ -69,7 +69,7 @@ test/optimize_lib_test_$(TEST_PARAMS).done: optimize_lib_test.exe $(RAND_NORMAL_
 	   cat $(RAND_NORMAL_DAT)
 	} | $(<D)/$(<F) >| $@ 2>| $@.error
 
-$(RAND_NORMAL_DAT): script/rand.sh script/to_normal.sh script/dawk.sh
+$(RAND_NORMAL_DAT): $(addprefix script/,rand.sh to_normal.sh dawk.sh)
 	mkdir -p $(@D)
 	set +o pipefail # `head` -> `SIGPIPE`
 	script/rand.sh $(SEED) | script/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
