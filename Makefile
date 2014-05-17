@@ -47,12 +47,10 @@ TEST_EXES := $(TESTS:%=test/%.exe)
 TEST_DONES := $(TESTS:%=test/%_$(TEST_PARAMS).done)
 
 # Tasks
-.PHONY: all test clean deps
-all: deps
+.PHONY: all test clean
+all:
 
-deps: $(DEPS:%=dep/%.timestamp)
-
-test: deps $(TEST_DONES)
+test: $(TEST_DONES)
 
 clean:
 	rm -f $(TEST_EXES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
@@ -95,9 +93,21 @@ dep/$(1)/%: | dep/$(1).timestamp ;
 endef
 $(foreach f,$(DEPS),$(eval $(call DEPS_RULE_TEMPLATE,$(f))))
 
-dep/%.timestamp: .git/modules/dep/%/HEAD
-	git submodule update --init --recursive
+dep/%.timestamp: dep/%.ref dep/%.remote | dep/%
+	cd $(@D)/$*
+	git fetch origin
+	git merge "$$(cat ../$(<F))"
+	cd -
 	touch $@
 
-.git/modules/dep/%/HEAD:
-	git submodule init
+dep/%.remote: dep/%.uri | dep/%
+	cd $(@D)/$*
+	git remote rm origin
+	git remote add origin "$$(cat ../$(<F))"
+	cd -
+	touch $@
+
+$(DEPS:%=dep/%): dep/%:
+	git init $@
+	cd $@
+	git remote add origin "$$(cat ../$*.uri)"
