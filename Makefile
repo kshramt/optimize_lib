@@ -29,7 +29,7 @@ LBFGSB := Lbfgsb
 
 DEPS := Lbfgsb bin
 
-BIN_SCRIPTS := to_normal.sh rand.sh dawk.sh
+SCRIPTS := $(addprefix script/,to_normal.sh rand.sh dawk.sh)
 
 SEED ?= 1
 N_ROW ?= 2000
@@ -74,18 +74,12 @@ $(RAND_NORMAL_DAT): script/rand.sh script/to_normal.sh script/dawk.sh
 	set +o pipefail # `head` -> `SIGPIPE`
 	script/rand.sh $(SEED) | script/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
 
-define CP_LBFGSB_TEMPLATE =
-$(1): dep/$(LBFGSB)/$(1)
-	cp -f $$< $$@
-endef
-$(foreach f,$(LBFGSB_FS),$(eval $(call CP_LBFGSB_TEMPLATE,$(f))))
+$(LBFGSB_FS): %: dep/$(LBFGSB)/%
+	cp -f $< $@
 
-define CP_BIN_TEMPLATE =
-script/$(1): dep/bin/$(1)
-	mkdir -p $$(@D)
-	cp -f $$< $$@
-endef
-$(foreach f,$(BIN_SCRIPTS),$(eval $(call CP_BIN_TEMPLATE,$(f))))
+$(SCRIPTS): script/%: dep/bin/%
+	mkdir -p $(@D)
+	cp -f $< $@
 
 # Rules
 %.o %.mod: %.F90
