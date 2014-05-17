@@ -8,7 +8,6 @@ ROOT_DIR := $(abspath .)
 .PRECIOUS:
 export SHELL := /bin/bash
 export SHELLOPTS := pipefail:errexit:nounset:noclobber
-export PATH := $(ROOT_DIR)/script:$(PATH)
 
 # Constants
 FC := gfortran
@@ -73,7 +72,7 @@ test/optimize_lib_test_$(TEST_PARAMS).done: optimize_lib_test.exe $(RAND_NORMAL_
 $(RAND_NORMAL_DAT): script/rand.sh script/to_normal.sh script/dawk.sh
 	mkdir -p $(@D)
 	set +o pipefail # `head` -> `SIGPIPE`
-	rand.sh $(SEED) | to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
+	script/rand.sh $(SEED) | script/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
 
 define CP_LBFGSB_TEMPLATE =
 $(1): dep/$(LBFGSB)/$(1)
