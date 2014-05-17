@@ -93,7 +93,7 @@ dep/$(1)/%: | dep/$(1).timestamp ;
 endef
 $(foreach f,$(DEPS),$(eval $(call DEPS_RULE_TEMPLATE,$(f))))
 
-dep/%.timestamp: dep/%.ref dep/%.remote | dep/%
+dep/%.timestamp: dep/%.ref dep/%.remote
 	cd $(@D)/$*
 	git fetch origin
 	git merge "$$(cat ../$(<F))"
