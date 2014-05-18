@@ -89,18 +89,18 @@ $(SCRIPTS): script/%: dep/bin/%
 	$(FC) $(FFLAGS) -o $@ -c $<
 
 define DEPS_RULE_TEMPLATE =
-dep/$(1)/%: | dep/$(1).timestamp ;
+dep/$(1)/%: | dep/$(1).updated ;
 endef
 $(foreach f,$(DEPS),$(eval $(call DEPS_RULE_TEMPLATE,$(f))))
 
-dep/%.timestamp: dep/%.ref dep/%.remote
+dep/%.updated: dep/%.ref dep/%.synced
 	cd $(@D)/$*
 	git fetch origin
 	git merge "$$(cat ../$(<F))"
 	cd -
 	touch $@
 
-dep/%.remote: dep/%.uri | dep/%
+dep/%.synced: dep/%.uri | dep/%
 	cd $(@D)/$*
 	git remote rm origin
 	git remote add origin "$$(cat ../$(<F))"
