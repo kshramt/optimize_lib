@@ -14,7 +14,7 @@ FC := gfortran
 # FC := ifort
 
 ifeq ($(FC),ifort)
-   FFLAGS := -fpp -warn -assume realloc_lhs -no-ftz -check nouninit -module src -mkl
+   FFLAGS := -warn -assume realloc_lhs -no-ftz -check nouninit -module src -mkl
    FFLAGS += -trace -O0 -p -g -DDEBUG -debug all
    # FFLAGS += -lpthread -openmp -ip -ipo -parallel -O3 -xHost
 else
@@ -56,7 +56,7 @@ clean:
 	rm -f $(TEST_EXES) $(LBFGSB_FS) $(LBFGSB_OS) $(MODULE_OS) $(MODULE_MODS)
 
 # Files
-test/optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) src/optimize_lib_test.F90 | $(MODULE_MODS)
+test/optimize_lib_test.exe: $(LBFGSB_OS) $(MODULE_OS) src/optimize_lib_test.f90 | $(MODULE_MODS)
 	mkdir -p $(@D)
 	$(FC) $(FFLAGS) -o $@ $^
 
@@ -80,7 +80,7 @@ $(SCRIPTS): script/%: dep/bin/%
 	cp -f $< $@
 
 # Rules
-%.o %.mod: %.F90
+%.o %.mod: %.f90
 	mkdir -p $(@D)
 	$(FC) $(FFLAGS) -o $(@:%.mod=%.o) -c $<
 
