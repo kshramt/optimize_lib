@@ -27,7 +27,6 @@ LBFGSB := Lbfgsb
 
 DEPS := Lbfgsb bin
 
-SCRIPTS := $(addprefix script/,to_normal.sh rand.sh dawk.sh)
 
 SEED ?= 1
 N_ROW ?= 2000
@@ -66,16 +65,12 @@ test/optimize_lib_test_$(TEST_PARAMS).done: test/optimize_lib_test.exe $(RAND_NO
 	   cat $(RAND_NORMAL_DAT)
 	} | $(<D)/$(<F) >| $@ 2>| $@.error
 
-$(RAND_NORMAL_DAT): $(addprefix script/,rand.sh to_normal.sh dawk.sh)
+$(RAND_NORMAL_DAT): $(addprefix dep/bin/,rand.sh to_normal.sh dawk.sh)
 	mkdir -p $(@D)
 	set +o pipefail # `head` -> `SIGPIPE`
-	script/rand.sh $(SEED) | script/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
+	dep/bin/rand.sh $(SEED) | dep/bin/to_normal.sh | head -n"$$(($(N_ROW)*$(N_COL)))" >| $@
 
 $(LBFGSB_FS): src/%: dep/$(LBFGSB)/%
-	mkdir -p $(@D)
-	cp -f $< $@
-
-$(SCRIPTS): script/%: dep/bin/%
 	mkdir -p $(@D)
 	cp -f $< $@
 
